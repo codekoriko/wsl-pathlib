@@ -5,13 +5,13 @@
 [![Python Version](https://img.shields.io/pypi/pyversions/wsl-pathlib.svg)](https://pypi.org/project/wsl-pathlib/)
 [![wemake-python-styleguide](https://img.shields.io/badge/style-wemake-000000.svg)](https://github.com/wemake-services/wemake-python-styleguide)
 
-extend to pathlib.Path to add the attribute wsl_path and win_path that holds respectively the  WSL (Windows Subsystem for Linux) representation and Windows representation of that path.
+Extend `pathlib.Path` by addding the properties `wsl_path` and `win_path` that holds respectively the  WSL (Windows Subsystem for Linux) and Windows representation of the `Path` object
 
 
 ## Features
-
-- Fully typed with annotations and checked with mypy, [PEP561 compatible](https://www.python.org/dev/peps/pep-0561/)
-- Add yours!
+- Works on both WSL and Windows side
+- Lazy loading of the wsl_path and win_path properties on first access
+- Base `Path` object fully functional
 
 
 ## Installation
@@ -26,10 +26,15 @@ pip install wsl-pathlib
 Showcase how your project can be used:
 
 ```python
-from wsl_pathlib.example import some_function
+from wsl_pathlib.path import WslPath
 
-print(some_function(3, 4))
-# => 7
+wsl_p = WslPath("/mnt/c/foo")
+print(wsl_p.win_path)
+# => 'C:\foo'
+
+wsl_p2 = wsl_p / "file.txt"
+print(wsl_p2.win_path)
+# => 'C:\foo\file.txt'
 ```
 
 ## License
