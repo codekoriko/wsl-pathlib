@@ -2,12 +2,9 @@ SHELL:=/usr/bin/env bash
 
 .PHONY: lint
 lint:
-	#poetry run mypy wemake_python_styleguide
+	poetry run mypy psy_utils tests/**/*.py
 	poetry run flake8 ./wsl_pathlib
-	poetry run autopep8 -r . --diff --exclude=./tests/fixtures/** --exit-code
-	poetry run lint-imports
 	poetry run doc8 -q docs
-	poetry run python3 scripts/check_generic_visit.py wemake_python_styleguide/visitors/ast
 
 .PHONY: unit
 unit:
@@ -15,9 +12,10 @@ unit:
 
 .PHONY: package
 package:
-	poetry run poetry check
+	poetry check
 	poetry run pip check
 	poetry run safety check --full-report
 
 .PHONY: test
-test: lint unit package
+test: lint package unit
+
