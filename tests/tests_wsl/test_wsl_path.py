@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import pytest
 from pathlib import Path
+
+import pytest
 
 from wsl_pathlib.path import WslPath
 
 
-@pytest.mark.parametrize(('fullpath_in', 'getter', 'expected'), [
+@pytest.mark.parametrize(("fullpath_in", "getter", "expected"), [
     (r"D:\.wor\test.txt", "win_path", r"D:\.wor\test.txt"),
     (r"D:\.wor\test.txt", "wsl_path", "/mnt/d/.wor/test.txt"),
     (Path(r"D:\.wor\test.txt"), "wsl_path", "/mnt/d/.wor/test.txt"),
@@ -21,7 +22,7 @@ def test_path_conversion(fullpath_in, getter, expected):
     assert getattr(wsl_p, getter) == expected
 
 
-@pytest.mark.parametrize(('fullpath_in', 'add_on', 'getter', 'expected'), [
+@pytest.mark.parametrize(("fullpath_in", "add_on", "getter", "expected"), [
     (r"D:\.wor", "test.txt", "win_path", r"D:\.wor\test.txt"),
     (r"D:\.wor", "test.txt", "wsl_path", "/mnt/d/.wor/test.txt"),
     ("/mnt/d/.wor", "test.txt", "wsl_path", "/mnt/d/.wor/test.txt"),

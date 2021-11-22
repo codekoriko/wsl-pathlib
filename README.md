@@ -5,13 +5,17 @@
 [![Python Version](https://img.shields.io/pypi/pyversions/wsl-pathlib.svg)](https://pypi.org/project/wsl-pathlib/)
 [![wemake-python-styleguide](https://img.shields.io/badge/style-wemake-000000.svg)](https://github.com/wemake-services/wemake-python-styleguide)
 
-Extend `pathlib.Path` by addding the properties `wsl_path` and `win_path` that holds respectively the  WSL (Windows Subsystem for Linux) and Windows representation of the `Path` object
+Extend `pathlib.Path` by addding the properties `wsl_path` and `win_path` that holds respectively the  WSL (Windows Subsystem for Linux) and Windows representation of the `Path` object.
 
 
 ## Features
 - Works on both WSL and Windows side
 - Lazy loading of the wsl_path and win_path properties on first access
 - Base `Path` object fully functional
+
+## Limitations
+- Only works for paths living in the wsl's `'/mnt/'` mount point. `'/home/'` won't work.
+- Performs very simple checks, for example: `if path[1] == ":" => windows`. I haven't fiddle with it to see how it behave for different edge cases.
 
 
 ## Installation
