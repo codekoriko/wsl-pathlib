@@ -3,7 +3,7 @@ SHELL:=/usr/bin/env bash
 .PHONY: lint
 lint:
 	# poetry run mypy wsl_pathlib tests/**/*.py
-	poetry run flake8 .
+	# poetry run flake8 wsl_pathlib/.
 	poetry run doc8 -q docs
 
 .PHONY: unit
