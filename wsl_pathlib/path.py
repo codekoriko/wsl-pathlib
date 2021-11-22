@@ -29,7 +29,7 @@ class WslPath(base):
         self._init_wsl_path()
 
     @property
-    def wsl_path(self):
+    def wsl_path(self) -> str:
         """Initialise WslPath properties and return lazy loaded value.
 
         If the Path object had been created by other mean than a direct
@@ -50,7 +50,7 @@ class WslPath(base):
         return str(self._wsl_path)
 
     @property
-    def win_path(self):
+    def win_path(self) -> str:
         """Initialise WslPath properties and return lazy loaded value.
 
         If the Path object had been created by other mean than a direct
@@ -70,7 +70,7 @@ class WslPath(base):
             self._win_path = PureWindowsPath(*rel_parts)
         return str(self._win_path)
 
-    def _init_wsl_path(self):
+    def _init_wsl_path(self) -> None:
         """Idying input path platform and getting the drive letter.
 
         Detects the input path as Unix or Win and save it to either _wsl_path

@@ -25,9 +25,7 @@ pip install wsl-pathlib
 ```
 
 
-## Example
-
-Showcase how your project can be used:
+## Usage
 
 ```python
 from wsl_pathlib.path import WslPath

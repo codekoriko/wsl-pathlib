@@ -215,3 +215,4 @@ fabric.properties
 
 .history/
 .vscode/*
+sandbox.py
