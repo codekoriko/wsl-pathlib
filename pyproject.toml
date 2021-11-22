@@ -1,0 +1,51 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.nitpick]
+style = "https://raw.githubusercontent.com/wemake-services/wemake-python-styleguide/master/styles/nitpick-style-wemake.toml"
+
+
+[tool.poetry]
+name = "wsl-pathlib"
+description = "extend to pathlib.Path to add the attribute wsl_path and win_path that holds respectively the  WSL (Windows Subsystem for Linux) representation and Windows representation of that path."
+version = "0.1.0"
+license = "MIT"
+
+authors = []
+
+readme = "README.md"
+
+repository = "https://github.com/salticidae/wsl-pathlib"
+
+keywords = []
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.910"
+
+wemake-python-styleguide = "^0.15"
+flake8-pytest-style = "^1.5"
+nitpick = "^0.29"
+
+safety = "^1.10"
+
+pytest = "^6.2"
+pytest-cov = "^3.0"
+pytest-randomly = "^3.10"
+
+sphinx = "^4.3"
+sphinx-autodoc-typehints = "^1.12"
+doc8 = "^0.10"
+m2r2 = "^0.3"
+tomlkit = "^0.7"
