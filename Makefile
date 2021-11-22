@@ -3,7 +3,7 @@ SHELL:=/usr/bin/env bash
 .PHONY: lint
 lint:
 	#poetry run mypy wemake_python_styleguide
-	poetry run flake8 .
+	poetry run flake8 ./wsl_pathlib
 	poetry run autopep8 -r . --diff --exclude=./tests/fixtures/** --exit-code
 	poetry run lint-imports
 	poetry run doc8 -q docs
