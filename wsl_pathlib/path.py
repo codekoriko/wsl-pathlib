@@ -4,13 +4,12 @@
 `wsl_path` and `win_path` each holds respectively the WSL and Windows
 representation of the `Path` object.
 """
-import os
+from os import name as os_name
 from pathlib import PosixPath, PurePosixPath, PureWindowsPath, WindowsPath
 
-if os.name == "posix":
+base = WindowsPath
+if os_name == "posix":
     base = PosixPath
-else:
-    base = WindowsPath
 
 
 class WslPath(base):

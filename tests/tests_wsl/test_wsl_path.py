@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pathlib import Path
+from pathlib import Path, WindowsPath
 
 import pytest
 
@@ -8,14 +8,14 @@ from wsl_pathlib.path import WslPath
 
 
 @pytest.mark.parametrize(("fullpath_in", "getter", "expected"), [
-    (r"D:\.wor\test.txt", "win_path", r"D:\.wor\test.txt"),
-    (r"D:\.wor\test.txt", "wsl_path", "/mnt/d/.wor/test.txt"),
-    (Path(r"D:\.wor\test.txt"), "wsl_path", "/mnt/d/.wor/test.txt"),
-    (Path(r"D:\.wor", "test.txt"), "wsl_path", "/mnt/d/.wor/test.txt"),
-    ("/mnt/d/.wor/test.txt", "wsl_path", "/mnt/d/.wor/test.txt"),
-    ("/mnt/d/.wor/test.txt", "win_path", r"D:\.wor\test.txt"),
-    (Path("/mnt/d/.wor/test.txt"), "win_path", r"D:\.wor\test.txt"),
-    (Path("/mnt/d/.wor/", "test.txt"), "win_path", r"D:\.wor\test.txt"),
+    (r"C:\foo\test.txt", "win_path", r"C:\foo\test.txt"),
+    (r"C:\foo\test.txt", "wsl_path", "/mnt/c/foo/test.txt"),
+    (Path(r"C:\foo\test.txt"), "wsl_path", "/mnt/c/foo/test.txt"),
+    (Path(r"C:\foo", "test.txt"), "wsl_path", "/mnt/c/foo/test.txt"),
+    ("/mnt/c/foo/test.txt", "wsl_path", "/mnt/c/foo/test.txt"),
+    ("/mnt/c/foo/test.txt", "win_path", r"C:\foo\test.txt"),
+    (Path("/mnt/c/foo/test.txt"), "win_path", r"C:\foo\test.txt"),
+    (Path("/mnt/c/foo/", "test.txt"), "win_path", r"C:\foo\test.txt"),
 ])
 def test_path_conversion(fullpath_in, getter, expected):
     wsl_p = WslPath(fullpath_in)
@@ -23,10 +23,10 @@ def test_path_conversion(fullpath_in, getter, expected):
 
 
 @pytest.mark.parametrize(("fullpath_in", "add_on", "getter", "expected"), [
-    (r"D:\.wor", "test.txt", "win_path", r"D:\.wor\test.txt"),
-    (r"D:\.wor", "test.txt", "wsl_path", "/mnt/d/.wor/test.txt"),
-    ("/mnt/d/.wor", "test.txt", "wsl_path", "/mnt/d/.wor/test.txt"),
-    ("/mnt/d/.wor", "test.txt", "win_path", r"D:\.wor\test.txt"),
+    (r"C:\foo", "test.txt", "win_path", r"C:\foo\test.txt"),
+    (r"C:\foo", "test.txt", "wsl_path", "/mnt/c/foo/test.txt"),
+    ("/mnt/c/foo", "test.txt", "wsl_path", "/mnt/c/foo/test.txt"),
+    ("/mnt/c/foo", "test.txt", "win_path", r"C:\foo\test.txt"),
 ])
 def test_path_copy_and_conversion(fullpath_in, add_on, getter, expected):
     p_start = WslPath(fullpath_in)
@@ -37,3 +37,4 @@ def test_path_copy_and_conversion(fullpath_in, add_on, getter, expected):
 def test_unsupported_path():
     with pytest.raises(NotImplementedError):
         WslPath("~/wsl_user_folder")
+

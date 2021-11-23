@@ -2,14 +2,13 @@ SHELL:=/usr/bin/env bash
 
 .PHONY: lint
 lint:
-	# poetry run mypy psy_utils tests/**/*.py
+	# poetry run mypy wsl_pathlib tests/**/*.py
 	poetry run flake8 ./wsl_pathlib
 	poetry run doc8 -q docs
 
 .PHONY: unit
 unit:
 	poetry run pytest
-	poetry run pytest --cov=./ --cov-report=xml
 
 .PHONY: package
 package:
