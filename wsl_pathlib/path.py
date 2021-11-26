@@ -12,20 +12,21 @@ if os_name == "posix":
     base = PosixPath
 
 
-
 def get_drive_letter(path_in, mnt: bool):
+    """Return the letter of the windows drive of the path."""
     if mnt:
         return path_in[5].lower()
-    else:
-        return path_in[0].lower()
+    return path_in[0].lower()
+
 
 def is_mnt(path_in: str):
+    """Check if the path posix and lives in '/mnt/'."""
     return path_in[:5] == "/mnt/"
 
 
 def is_nt(path_in: str):
+    """Check if the path is a windows path."""
     return path_in[1] == ":"
-
 
 
 class WslPath(base):
@@ -33,15 +34,20 @@ class WslPath(base):
 
     depending on the plateform base class either pathlib's
     PosixPath or WindowsPath.
+    Path objects are instanciated with path representation matching
+    the user's OS.
     Both _wsl_path and _win_path properties are lazily converted for their
     getters, the first time they are requested.
-
     """
+
     def __new__(cls, *args, **kwargs):
-        # if isinstance(args[0], WindowsPath):
-        #     path_in = str(args[0].as_posix())
-        # else:
-        #     path_in = str(args[0].replace("\\"))
+        r"""Correction of the path, to instanciate the version matching the os.
+
+        Crude correction of the path string, in order to instanciate a
+        representation of the matching the user's OS.
+        ie: we are on wsl and we instanciated WslPath('c:\foo')
+        we change the path str to instanciate PosixPath('/mnt/c/foo').
+        """
         path_in = str(args[0]).replace("\\", "/")
 
         if is_mnt(path_in):
@@ -66,7 +72,6 @@ class WslPath(base):
         new_args[0] = crude_path
         args = tuple(new_args)
         return super().__new__(cls, *args, **kwargs)
-
 
     def __init__(self, *args, **kwargs):
         """Initialize WslPath properties after base init."""
