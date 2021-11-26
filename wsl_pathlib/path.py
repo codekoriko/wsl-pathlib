@@ -38,10 +38,11 @@ class WslPath(base):
 
     """
     def __new__(cls, *args, **kwargs):
-        if isinstance(args[0], WindowsPath):
-            path_in = str(args[0].as_posix())
-        else:
-            path_in = str(args[0])
+        # if isinstance(args[0], WindowsPath):
+        #     path_in = str(args[0].as_posix())
+        # else:
+        #     path_in = str(args[0].replace("\\"))
+        path_in = str(args[0]).replace("\\", "/")
 
         if is_mnt(path_in):
             if os_name == "posix":
