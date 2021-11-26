@@ -30,7 +30,12 @@ pip install wsl-pathlib
 ```python
 from wsl_pathlib.path import WslPath
 
-wsl_p = WslPath("/mnt/c/foo")
+# Running on WSL
+wsl_p = WslPath(r"C:\foo")
+print(wsl_p.exists())
+# => True
+print(wsl_p)
+# => '/mnt/c/foo'
 print(wsl_p.win_path)
 # => 'C:\foo'
 
