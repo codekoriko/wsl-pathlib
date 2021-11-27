@@ -9,8 +9,8 @@ style = "https://raw.githubusercontent.com/wemake-services/wemake-python-stylegu
 
 [tool.poetry]
 name = "wsl-pathlib"
-description = "extend to pathlib.Path to add the attribute wsl_path and win_path that holds respectively the  WSL (Windows Subsystem for Linux) representation and Windows representation of that path."
-version = "0.1.1"
+description = "Add wsl_path and win_path Properties to pathlib.Path Class."
+version = "0.1.2"
 license = "MIT"
 
 authors = []
