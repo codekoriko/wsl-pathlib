@@ -9,14 +9,12 @@ Extend `pathlib.Path` by addding the properties `wsl_path` and `win_path` that h
 
 
 ## Features
-- Works on both WSL and Windows side
-- Lazy loading of the wsl_path and win_path properties on first access
-- Base `Path` object fully functional
+- Lazy loading of the wsl_path and win_path properties on first access.
+- Base `Path` object remains fully functional.
+- Obviously works on both WSL and Windows side.
 
 ## Limitations
-- Only works for paths living in the wsl's `'/mnt/'` mount point. `'/home/'` won't work.
-- Performs very simple checks, for example: `if path[1] == ":" => windows`. I haven't fiddle with it to see how it behave for different edge cases.
-
+- Only works for the windows drives, (paths living in the wsl's `'/mnt/'` mount point) so `'/home/'` won't work for example.
 
 ## Installation
 
@@ -31,11 +29,11 @@ pip install wsl-pathlib
 from wsl_pathlib.path import WslPath
 
 # Running on WSL
-wsl_p = WslPath(r"C:\foo")
-print(wsl_p.exists())
-# => True
+wsl_p = WslPath("C:\\foo")
 print(wsl_p)
 # => '/mnt/c/foo'
+print(wsl_p.exists())
+# => True
 print(wsl_p.win_path)
 # => 'C:\foo'
 
