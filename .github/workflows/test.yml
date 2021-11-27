@@ -8,44 +8,43 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
+  test-windows:
     strategy:
       matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
         os: [windows-latest, ubuntu-latest]
-        python-version: ['3.6', '3.7', '3.8', '3.9']
-
+    defaults:
+      run:
+        shell: bash
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Install poetry
-      run: |
-        curl -sSL \
-          "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py" | python
-
-        # Adding `poetry` to `$PATH`:
-        echo "$HOME/.poetry/bin" >> $GITHUB_PATH
-
-    - name: Set up cache
-      uses: actions/cache@v2
-      with:
-        path: .venv
-        key: venv-${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
-    - name: Install dependencies
-      run: |
-        poetry config virtualenvs.in-project true
-        poetry install
-
-    - name: Run checks
-      run: |
-        make test
-
-    # Upload coverage to codecov: https://codecov.io/
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.xml
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Set up python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      - name: Load cached venv
+        id: cached-pip-wheels
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      - name: Install library
+        run: poetry install --no-interaction
+      - name: Run checks
+        run: |
+          source $VENV
+          make test
+      # Upload coverage to codecov: https://codecov.io/
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.xml
