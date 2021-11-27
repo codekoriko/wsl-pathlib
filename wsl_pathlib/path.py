@@ -60,6 +60,7 @@ class WslPath(base):
         elif is_nt(path_in):
             if os_name == "nt":
                 crude_path = path_in
+            # simply check if path start with "/mnt/" to detect WSL path
             else:
                 dl = get_drive_letter(path_in, mnt=False)
                 crude_path = f"/mnt/{dl}{path_in[2:]}"
@@ -137,14 +138,10 @@ class WslPath(base):
         path_in = self.as_posix()
         self._wsl_path = None
         self._win_path = None
-        # simply check 2nd char for ":" to detect win path
         if is_nt(path_in):
             self._win_path = PureWindowsPath(self)
-        # simply check if path start with "/mnt/" to detect WSL path
-        elif is_mnt(path_in):
-            self._wsl_path = PurePosixPath(self)
         else:
-            raise NotImplementedError("Path not in /mnt/ not yet supported")
+            self._wsl_path = PurePosixPath(self)
         if self._win_path:
             self.drive_letter = get_drive_letter(
                 str(self._win_path),
