@@ -40,7 +40,7 @@ class WslPath(base):
     getters, the first time they are requested.
     """
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs) -> 'WslPath':
         r"""Correction of the path, to instanciate the version matching the os.
 
         Crude correction of the path string, in order to instanciate a
@@ -74,7 +74,7 @@ class WslPath(base):
         args = tuple(new_args)
         return super().__new__(cls, *args, **kwargs)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Initialize WslPath properties after base init."""
         super().__init__()
         self._init_wsl_path()
