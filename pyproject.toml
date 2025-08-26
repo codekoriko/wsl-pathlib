@@ -7,7 +7,7 @@ build-backend = "poetry.core.masonry.api"
 name = "wsl-pathlib"
 description = "Add wsl_path and win_path Properties to pathlib.Path Class."
 version = "1.0.0"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10,<4.0"
 readme = "README.md"
 license = { text = "MIT" }
 dynamic = ["dependencies", "classifiers"]
