@@ -97,13 +97,13 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
 
     def _normalize_path(self, raw_str: str) -> str:
         """Normalize path based on platform and path type."""
-        if self._is_mnt_path(raw_str):
+        if self.is_mnt(raw_str):
             if os_name == 'posix':
                 return raw_str
             drive_letter = self._get_drive_letter(raw_str, is_mnt=True)
             return f'{drive_letter.upper()}:{raw_str[7:]}'
 
-        if self._is_win_drive_path(raw_str):
+        if self.is_nt(raw_str):
             if os_name == 'nt':
                 return raw_str
             drive_letter = self._get_drive_letter(raw_str, is_mnt=False)
@@ -115,7 +115,7 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         )
         raise NotImplementedError(error_msg)
 
-    def _is_mnt_path(self, path_in: str) -> bool:
+    def is_mnt(self, path_in: str) -> bool:
         """Check if path is a WSL mount path like /mnt/c/..."""
         if not path_in.startswith('/mnt/'):
             return False
@@ -127,7 +127,7 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         drive_part = parts[2]
         return len(drive_part) == 1 and drive_part.isalpha()
 
-    def _is_win_drive_path(self, path_in: str) -> bool:
+    def is_nt(self, path_in: str) -> bool:
         r"""Check if path is a Windows drive path like C:\\..."""
         if len(path_in) < 2:
             return False
@@ -154,7 +154,7 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
                     return drive_part.lower()
             raise ValueError('Invalid /mnt/ path: cannot derive drive letter.')
 
-        if self._is_win_drive_path(path_in):
+        if self.is_nt(path_in):
             return path_in[0].lower()
         raise ValueError('Invalid Windows path: cannot derive drive letter.')
 
@@ -164,10 +164,10 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         self._win_path = None
         current = self.as_posix()
 
-        if self._is_win_drive_path(current):
+        if self.is_nt(current):
             self._win_path = PureWindowsPath(current)
             self.drive_letter = self._get_drive_letter(current, is_mnt=False)
-        elif self._is_mnt_path(current):
+        elif self.is_mnt(current):
             self._wsl_path = PurePosixPath(current)
             self.drive_letter = self._get_drive_letter(current, is_mnt=True)
         else:
@@ -224,12 +224,12 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         posix_view = self.as_posix()
 
         try:
-            if self._is_win_drive_path(posix_view):
+            if self.is_nt(posix_view):
                 self._win_path = PureWindowsPath(posix_view)
                 self.drive_letter = self._get_drive_letter(
                     posix_view, is_mnt=False
                 )
-            elif self._is_mnt_path(posix_view):
+            elif self.is_mnt(posix_view):
                 self._wsl_path = PurePosixPath(posix_view)
                 self.drive_letter = self._get_drive_letter(
                     posix_view, is_mnt=True
