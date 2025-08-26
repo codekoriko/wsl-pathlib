@@ -120,13 +120,13 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         if is_mnt(raw_str):
             if os_name == 'posix':
                 return raw_str
-            drive_letter = self._get_drive_letter(raw_str, is_mnt=True)
+            drive_letter = self._get_drive_letter_from_mnt_path(raw_str)
             return f'{drive_letter.upper()}:{raw_str[7:]}'
 
         if is_nt(raw_str):
             if os_name == 'nt':
                 return raw_str
-            drive_letter = self._get_drive_letter(raw_str, is_mnt=False)
+            drive_letter = self._get_drive_letter_from_nt_path(raw_str)
             return f'/mnt/{drive_letter}{raw_str[2:]}'
 
         error_msg = (
@@ -135,12 +135,11 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         )
         raise NotImplementedError(error_msg)
 
-    def _get_drive_letter(self, path_in: str, *, is_mnt: bool) -> str:
-        """Extract drive letter from path.
+    def _get_drive_letter_from_nt_path(self, path_in: str) -> str:
+        """Extract drive letter from Windows NT path.
 
         Args:
-            path_in: The input path string
-            is_mnt: Whether this is a /mnt/ style path (keyword-only)
+            path_in: The Windows path string (e.g., 'C:/path')
 
         Returns:
             The drive letter in lowercase
@@ -148,17 +147,28 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         Raises:
             ValueError: If drive letter cannot be derived
         """
-        if is_mnt:
-            parts = path_in.split('/', 4)
-            if len(parts) >= 3:
-                drive_part = parts[2]
-                if len(drive_part) == 1 and drive_part.isalpha():
-                    return drive_part.lower()
-            raise ValueError('Invalid /mnt/ path: cannot derive drive letter.')
-
         if is_nt(path_in):
             return path_in[0].lower()
         raise ValueError('Invalid Windows path: cannot derive drive letter.')
+
+    def _get_drive_letter_from_mnt_path(self, path_in: str) -> str:
+        """Extract drive letter from WSL mount path.
+
+        Args:
+            path_in: The WSL mount path string (e.g., '/mnt/c/path')
+
+        Returns:
+            The drive letter in lowercase
+
+        Raises:
+            ValueError: If drive letter cannot be derived
+        """
+        parts = path_in.split('/', 4)
+        if len(parts) >= 3:
+            drive_part = parts[2]
+            if len(drive_part) == 1 and drive_part.isalpha():
+                return drive_part.lower()
+        raise ValueError('Invalid /mnt/ path: cannot derive drive letter.')
 
     def _init_views(self) -> None:
         """Initialize internal path views based on current path."""
@@ -168,10 +178,10 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
 
         if is_nt(current):
             self._win_path = PureWindowsPath(current)
-            self.drive_letter = self._get_drive_letter(current, is_mnt=False)
+            self.drive_letter = self._get_drive_letter_from_nt_path(current)
         elif is_mnt(current):
             self._wsl_path = PurePosixPath(current)
-            self.drive_letter = self._get_drive_letter(current, is_mnt=True)
+            self.drive_letter = self._get_drive_letter_from_mnt_path(current)
         else:
             error_msg = (
                 "Only '/mnt/<drive>/' and 'X:/' drive paths are supported."
@@ -228,13 +238,13 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         try:
             if is_nt(posix_view):
                 self._win_path = PureWindowsPath(posix_view)
-                self.drive_letter = self._get_drive_letter(
-                    posix_view, is_mnt=False
+                self.drive_letter = self._get_drive_letter_from_nt_path(
+                    posix_view
                 )
             elif is_mnt(posix_view):
                 self._wsl_path = PurePosixPath(posix_view)
-                self.drive_letter = self._get_drive_letter(
-                    posix_view, is_mnt=True
+                self.drive_letter = self._get_drive_letter_from_mnt_path(
+                    posix_view
                 )
             else:
                 self._raise_unsupported()
