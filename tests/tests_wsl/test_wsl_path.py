@@ -6,7 +6,7 @@ from wsl_pathlib.path import WslPath
 
 
 @pytest.mark.parametrize(('fullpath_in', 'getter', 'expected'), [
-    (r'C:\foo\test.txt', 'win_path', r'C:\foo\test.txt'),
+    (r'D:\\.wor\\wsl-pathlib', 'win_path', r'C:\\foo\\test.txt'),
     (r'C:\foo\test.txt', 'wsl_path', '/mnt/c/foo/test.txt'),
     (Path(r'C:\foo\test.txt'), 'wsl_path', '/mnt/c/foo/test.txt'),
     (Path(r'C:\foo', 'test.txt'), 'wsl_path', '/mnt/c/foo/test.txt'),

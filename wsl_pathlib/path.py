@@ -54,15 +54,6 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         # Initialize instance attributes
         self.ensure_attributes()
 
-    def __truediv__(self, other: str | Any) -> WslPath:
-        """Override / operator to ensure proper WslPath creation."""
-        result = super().__truediv__(other)
-        if isinstance(result, WslPath):
-            result.ensure_attributes()
-        else:
-            result = WslPath(str(result))
-        return cast(WslPath, result)
-
     def ensure_attributes(self) -> None:
         """Ensure all instance attributes are initialized."""
         if getattr(self, '_wsl_path', None) is None:
