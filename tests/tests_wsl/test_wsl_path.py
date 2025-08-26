@@ -15,7 +15,11 @@ from wsl_pathlib.path import WslPath
     (Path('/mnt/c/foo/test.txt'), 'win_path', r'C:\foo\test.txt'),
     (Path('/mnt/c/foo/', 'test.txt'), 'win_path', r'C:\foo\test.txt'),
 ])
-def test_path_conversion(fullpath_in, getter, expected):
+def test_path_conversion(
+    fullpath_in: str,
+    getter: str,
+    expected: str,
+) -> None:
     """Test conversion between Windows and WSL path formats.
 
     Args:
@@ -33,7 +37,12 @@ def test_path_conversion(fullpath_in, getter, expected):
     ('/mnt/c/foo', 'test.txt', 'wsl_path', '/mnt/c/foo/test.txt'),
     ('/mnt/c/foo', 'test.txt', 'win_path', r'C:\foo\test.txt'),
 ])
-def test_path_copy_and_conversion(fullpath_in, add_on, getter, expected):
+def test_path_copy_and_conversion(
+    fullpath_in: str,
+    add_on: str,
+    getter: str,
+    expected: str,
+) -> None:
     """Test path joining and conversion operations.
 
     Args:
@@ -48,7 +57,7 @@ def test_path_copy_and_conversion(fullpath_in, add_on, getter, expected):
     assert path_retrieved == expected
 
 
-def test_unsupported_path():
+def test_unsupported_path() -> None:
     """Test that unsupported path formats raise NotImplementedError."""
     with pytest.raises(NotImplementedError):
         WslPath('~/wsl_user_folde')
