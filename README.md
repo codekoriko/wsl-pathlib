@@ -7,13 +7,14 @@
 
 Extend `pathlib.Path` by addding the properties `wsl_path` and `win_path` that holds respectively the  WSL (Windows Subsystem for Linux) and Windows representation of the `Path` object.
 
-
 ## Features
+
 - Lazy loading of the wsl_path and win_path properties on first access.
 - Base `Path` object remains fully functional.
 - Obviously works on both WSL and Windows side.
 
 ## Limitations
+
 - Only works for the windows drives, (paths living in the wsl's `'/mnt/'` mount point) so `'/home/'` won't work for example.
 
 ## Installation
@@ -21,7 +22,6 @@ Extend `pathlib.Path` by addding the properties `wsl_path` and `win_path` that h
 ```bash
 pip install wsl-pathlib
 ```
-
 
 ## Usage
 
@@ -45,7 +45,6 @@ print(wsl_p2.win_path)
 ## License
 
 [MIT](https://github.com/codekoriko/wsl-pathlib/blob/master/LICENSE)
-
 
 ## Credits
 

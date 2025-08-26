@@ -3,14 +3,14 @@ from __future__ import annotations
 import logging
 from os import name as os_name
 from pathlib import PosixPath, PurePosixPath, PureWindowsPath, WindowsPath
-from typing import Any, TypeAlias
+from typing import Any, TypeAlias, cast
 
 # Fix: Use proper type alias and Union for base class
 BasePath: TypeAlias = WindowsPath | PosixPath
 _BASE_PATH_TYPE = WindowsPath if os_name == 'nt' else PosixPath
 
 
-class WslPath(_BASE_PATH_TYPE):
+class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
     r"""A pathlib-compatible class for handling WSL and Win path conversions.
 
     This class extends the platform-appropriate Path class and provides
@@ -32,42 +32,68 @@ class WslPath(_BASE_PATH_TYPE):
         super().__init__(*new_args[1:], **kwargs)
 
         # Initialize instance attributes
-        self._ensure_attributes()
+        self.ensure_attributes()
 
-    def _ensure_attributes(self) -> None:
+    def __truediv__(self, other: str | Any) -> WslPath:
+        """Override / operator to ensure proper WslPath creation."""
+        result = super().__truediv__(other)
+        if isinstance(result, WslPath):
+            result.ensure_attributes()
+        else:
+            result = WslPath(str(result))
+        return cast(WslPath, result)
+
+    def ensure_attributes(self) -> None:
         """Ensure all instance attributes are initialized."""
-        if not hasattr(self, '_wsl_path'):
+        if getattr(self, '_wsl_path', None) is None:
             self._wsl_path: PurePosixPath | None = None
-        if not hasattr(self, '_win_path'):
+        if getattr(self, '_win_path', None) is None:
             self._win_path: PureWindowsPath | None = None
-        if not hasattr(self, 'drive_letter'):
+        if not getattr(self, 'drive_letter', ''):
             self.drive_letter = ''
-        if not hasattr(self, 'logger'):
+        if not getattr(self, 'logger', None):
             self.logger = logging.getLogger(__name__)
 
         # Initialize views if not already done
         if not self.drive_letter:
             self._init_views()
 
+    @property
+    def wsl_path(self) -> str:
+        """Get the WSL mount path representation (e.g., /mnt/c/path)."""
+        self.ensure_attributes()
+
+        if self._wsl_path is None:
+            self._ensure_wsl_view()
+
+        if self._wsl_path is None:
+            raise RuntimeError('Failed to initialize WSL path view')
+
+        return str(self._wsl_path)
+
+    @property
+    def win_path(self) -> str:
+        r"""Get the Windows path representation (e.g., C:\\path)."""
+        self.ensure_attributes()
+
+        if self._win_path is None:
+            self._ensure_win_view()
+
+        if self._win_path is None:
+            raise RuntimeError('Failed to initialize Windows path view')
+
+        return str(self._win_path)
+
     def _make_child_relpath(self, name: str) -> WslPath:
         """Create a child path (used by pathlib internally)."""
         # This method is called by pathlib when using / operator
         child = super()._make_child_relpath(name)
         # Ensure the child is a WslPath with proper attributes
-        if not isinstance(child, WslPath):
+        if isinstance(child, WslPath):
+            child.ensure_attributes()
+        else:
             child = WslPath(str(child))
-        else:
-            child._ensure_attributes()
-        return child
-
-    def __truediv__(self, other: str | Any) -> WslPath:
-        """Override / operator to ensure proper WslPath creation."""
-        result = super().__truediv__(other)
-        if not isinstance(result, WslPath):
-            result = WslPath(str(result))
-        else:
-            result._ensure_attributes()
-        return result
+        return cast(WslPath, child)
 
     def _normalize_path(self, raw_str: str) -> str:
         """Normalize path based on platform and path type."""
@@ -132,32 +158,6 @@ class WslPath(_BASE_PATH_TYPE):
             return path_in[0].lower()
         raise ValueError('Invalid Windows path: cannot derive drive letter.')
 
-    @property
-    def wsl_path(self) -> str:
-        """Get the WSL mount path representation (e.g., /mnt/c/path)."""
-        self._ensure_attributes()
-
-        if self._wsl_path is None:
-            self._ensure_wsl_view()
-
-        if self._wsl_path is None:
-            raise RuntimeError('Failed to initialize WSL path view')
-
-        return str(self._wsl_path)
-
-    @property
-    def win_path(self) -> str:
-        r"""Get the Windows path representation (e.g., C:\\path)."""
-        self._ensure_attributes()
-
-        if self._win_path is None:
-            self._ensure_win_view()
-
-        if self._win_path is None:
-            raise RuntimeError('Failed to initialize Windows path view')
-
-        return str(self._win_path)
-
     def _init_views(self) -> None:
         """Initialize internal path views based on current path."""
         self._wsl_path = None
@@ -172,7 +172,7 @@ class WslPath(_BASE_PATH_TYPE):
             self.drive_letter = self._get_drive_letter(current, is_mnt=True)
         else:
             error_msg = (
-                'Only \'/mnt/<drive>/\' and \'X:/\' drive paths are supported.'
+                "Only '/mnt/<drive>/' and 'X:/' drive paths are supported."
             )
             raise NotImplementedError(error_msg)
 
@@ -213,6 +213,12 @@ class WslPath(_BASE_PATH_TYPE):
             drive_root = f'{self.drive_letter.upper()}:\\'
             self._win_path = PureWindowsPath(drive_root, *rel_after_drive)
 
+    def _raise_unsupported(self) -> None:
+        """To avoid raise-within-try (TRY301)."""
+        raise NotImplementedError(
+            'Cannot derive views from an unsupported path.'
+        )
+
     def _ensure_views_from_self(self) -> None:
         """Ensure internal views are populated from current path state."""
         posix_view = self.as_posix()
@@ -229,9 +235,8 @@ class WslPath(_BASE_PATH_TYPE):
                     posix_view, is_mnt=True
                 )
             else:
-                raise NotImplementedError(
-                    'Cannot derive views from an unsupported path.'
-                )
+                self._raise_unsupported()
+
         except Exception:
             self.logger.exception('Failed to ensure views from path: %s')
             raise
