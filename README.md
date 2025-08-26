@@ -1,7 +1,7 @@
 # wsl-pathlib
 
-[![Build Status](https://github.com/psychonaute/wsl-pathlib/workflows/test/badge.svg?branch=master&event=push)](https://github.com/psychonaute/wsl-pathlib/actions?query=workflow%3Atest)
-[![codecov](https://codecov.io/gh/psychonaute/wsl-pathlib/branch/master/graph/badge.svg)](https://codecov.io/gh/psychonaute/wsl-pathlib)
+[![Build Status](https://github.com/codekoriko/wsl-pathlib/workflows/test/badge.svg?branch=master&event=push)](https://github.com/codekoriko/wsl-pathlib/actions?query=workflow%3Atest)
+[![codecov](https://codecov.io/gh/codekoriko/wsl-pathlib/branch/master/graph/badge.svg)](https://codecov.io/gh/codekoriko/wsl-pathlib)
 [![Python Version](https://img.shields.io/pypi/pyversions/wsl-pathlib.svg)](https://pypi.org/project/wsl-pathlib/)
 [![wemake-python-styleguide](https://img.shields.io/badge/style-wemake-000000.svg)](https://github.com/wemake-services/wemake-python-styleguide)
 
@@ -44,7 +44,7 @@ print(wsl_p2.win_path)
 
 ## License
 
-[MIT](https://github.com/psychonaute/wsl-pathlib/blob/master/LICENSE)
+[MIT](https://github.com/codekoriko/wsl-pathlib/blob/master/LICENSE)
 
 
 ## Credits

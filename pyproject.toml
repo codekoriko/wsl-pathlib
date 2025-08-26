@@ -1,26 +1,27 @@
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=2.0"]
 build-backend = "poetry.core.masonry.api"
 
 
-[tool.nitpick]
-style = "https://raw.githubusercontent.com/wemake-services/wemake-python-styleguide/master/styles/nitpick-style-wemake.toml"
+[project]
+name = "wsl-pathlib"
+description = "Add wsl_path and win_path Properties to pathlib.Path Class."
+version = "1.0.0"
+requires-python = ">=3.10,<3.14"
+readme = "README.md"
+license = { text = "MIT" }
+dynamic = ["dependencies", "classifiers"]
+
+authors = [{name = "Killian Blais", email = "codekoriko@users.noreply.github.com"}]
+keywords = [
+  "wemake-python-package",
+]
+
+[project.urls]
+repository = "https://github.com/codekoriko/wsl-pathlib"
 
 
 [tool.poetry]
-name = "wsl-pathlib"
-description = "Add wsl_path and win_path Properties to pathlib.Path Class."
-version = "0.1.4"
-license = "MIT"
-
-authors = []
-
-readme = "README.md"
-
-repository = "https://github.com/psychonaute/wsl-pathlib"
-
-keywords = []
-
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -28,22 +29,160 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
+# we use mypy for type checks
+[tool.pyright]
+reportGeneralTypeIssues = false
+reportIncompatibleVariableOverride = false
+
 [tool.poetry.dependencies]
-python = "^3.6"
 
-[tool.poetry.dev-dependencies]
-mypy = "^0.920"
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.16"
 
-flake8 = "^3.9.2"
-wemake-python-styleguide = "^0.16"
-flake8-pytest-style = "^1.5"
-nitpick = "^0.29"
-safety = "^1.10"
-pytest = "^6.2"
-pytest-cov = "^3.0"
-pytest-randomly = "^3.10.3"
-sphinx = "^4.3.1"
-sphinx-autodoc-typehints = "^1.12"
-doc8 = "^0.10"
-m2r2 = "^0.3"
-tomlkit = "^0.7"
+wemake-python-styleguide = "^1.1"
+ruff = "^0.11"
+
+pytest = "^8.4"
+pytest-cov = "^6.1"
+pytest-randomly = "^3.16"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^8.1"
+sphinx-autodoc-typehints = "^3.0"
+tomli = "^2.2"
+myst-parser = "^4.0"
+furo = "^2024.8"
+
+
+[tool.ruff]
+# Ruff config: https://docs.astral.sh/ruff/settings
+preview = true
+fix = true
+target-version = "py310"
+line-length = 80
+
+[tool.ruff.format]
+quote-style = "single"
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+  "A",    # flake8-builtins
+  "B",    # flake8-bugbear
+  "C4",   # flake8-comprehensions
+  "C90",  # maccabe
+  "COM",  # flake8-commas
+  "D",    # pydocstyle
+  "DTZ",  # flake8-datetimez
+  "E",    # pycodestyle
+  "ERA",  # flake8-eradicate
+  "EXE",  # flake8-executable
+  "F",    # pyflakes
+  "FBT",  # flake8-boolean-trap
+  "FLY",  # pyflint
+  "FURB", # refurb
+  "G",    # flake8-logging-format
+  "I",    # isort
+  "ICN",  # flake8-import-conventions
+  "ISC",  # flake8-implicit-str-concat
+  "LOG",  # flake8-logging
+  "N",    # pep8-naming
+  "PERF", # perflint
+  "PIE",  # flake8-pie
+  "PL",   # pylint
+  "PT",   # flake8-pytest-style
+  "PTH",  # flake8-use-pathlib
+  "Q",    # flake8-quotes
+  "RET",  # flake8-return
+  "RSE",  # flake8-raise
+  "RUF",  # ruff
+  "S",    # flake8-bandit
+  "SIM",  # flake8-simpify
+  "SLF",  # flake8-self
+  "SLOT", # flake8-slots
+  "T100", # flake8-debugger
+  "TRY",  # tryceratops
+  "UP",   # pyupgrade
+  "W",    # pycodestyle
+  "YTT",  # flake8-2020
+]
+ignore = [
+  "A005",   # allow to shadow stdlib and builtin module names
+  "COM812", # trailing comma, conflicts with `ruff format`
+  # Different doc rules that we don't really care about:
+  "D100",
+  "D104",
+  "D106",
+  "D203",
+  "D212",
+  "D401",
+  "D404",
+  "D405",
+  "ISC001",  # implicit string concat conflicts with `ruff format`
+  "ISC003",  # prefer explicit string concat over implicit concat
+  "PLR09",   # we have our own complexity rules
+  "PLR2004", # do not report magic numbers
+  "PLR6301", # do not require classmethod / staticmethod when self not used
+  "TRY003",  # long exception messages from `tryceratops`
+]
+external = [ "WPS" ]
+
+# Plugin configs:
+flake8-quotes.inline-quotes = "single"
+mccabe.max-complexity = 6
+pydocstyle.convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["S101"]
+
+
+[tool.pytest.ini_options]
+# pytest config: http://doc.pytest.org/en/latest/customize.html
+
+# Strict `@xfail` by default:
+xfail_strict = true
+# Fail on warnings:
+filterwarnings = ["error"]
+
+addopts = [
+  "--strict-config",
+  "--strict-markers",
+  "--doctest-modules",
+    # Output:
+  "--tb=short",
+  # Coverage:
+  "--cov=my_awesome_project",
+  "--cov-report=term-missing:skip-covered",
+  "--cov-report=html",
+  "--cov-report=xml",
+  "--cov-branch",
+  "--cov-fail-under=100",
+  # Ignores:
+  "--ignore=docs",
+]
+
+
+[tool.mypy]
+# The mypy configurations: http://bit.ly/2zEl9WI
+strict = true
+strict_bytes = true
+local_partial_types = true
+warn_unreachable = true
+python_version = "3.10"
+
+enable_error_code = [
+  "truthy-bool",
+  "truthy-iterable",
+  "redundant-expr",
+  "unused-awaitable",
+  "ignore-without-code",
+  "possibly-undefined",
+  "redundant-self",
+  "explicit-override",
+  "mutable-override",
+  "unimported-reveal",
+  "deprecated",
+]
