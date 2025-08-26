@@ -51,9 +51,6 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         new_args = (normalized, *args[1:])
         super().__init__(*new_args[1:], **kwargs)
 
-        # Initialize instance attributes
-        self.ensure_attributes()
-
     def ensure_attributes(self) -> None:
         """Ensure all instance attributes are initialized."""
         if getattr(self, '_wsl_path', None) is None:
