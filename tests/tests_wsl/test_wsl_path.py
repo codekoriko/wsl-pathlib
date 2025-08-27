@@ -66,6 +66,7 @@ def test_unsupported_path() -> None:
 
 @pytest.mark.skipif(os.name != 'nt', reason='Windows-specific roundtrip test')
 def test_exists_windows_roundtrip(tmp_path: Path) -> None:
+    """Test that Windows paths can be converted to WSL paths."""
     p = tmp_path / 'a.txt'
     p.write_text('x')
     w = WslPath(str(p))  # C:\...\a.txt
