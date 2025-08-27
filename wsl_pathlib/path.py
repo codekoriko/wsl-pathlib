@@ -45,13 +45,26 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
 
         raw_str = str(args[0]).replace('\\', '/')
         normalized = cls._normalize_for_new(raw_str)
-        self = super().__new__(cls, normalized, *args[1:])
+        self = super().__new__(cls, normalized, *args[1:], **kwargs)
+        # Preserve the normalized string for initialization routines
+        try:
+            object.__setattr__(self, '_normalized_input', normalized)
+        except Exception:
+            pass
         return cast('WslPath', self)
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize non-Path attributes; base path was created in __new__."""
+        # Ensure compatibility with alternative pathlib implementations
+        # that initialize internals in __init__ (e.g., vendored/backport).
+        try:
+            super().__init__(*args, **kwargs)
+        except Exception:
+            # Standard library pathlib.Path ignores __init__, so this is safe.
+            pass
+
         self.logger = logging.getLogger(__name__)
-        self.ensure_attributes()
+        # Defer attribute initialization until first access of properties
 
     def ensure_attributes(self) -> None:
         """Ensure all instance attributes are initialized."""
