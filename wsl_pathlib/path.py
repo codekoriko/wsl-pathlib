@@ -38,18 +38,20 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
     mount paths (/mnt/c/path).
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """Initialize WslPath instance."""
+    def __new__(cls, *args: Any, **kwargs: Any) -> 'WslPath':
+        """Create a new instance, normalizing the base path in __new__."""
         if not args:
             raise TypeError('WslPath requires a path argument.')
 
-        self.logger = logging.getLogger(__name__)
         raw_str = str(args[0]).replace('\\', '/')
-        normalized = self._normalize_path(raw_str)
+        normalized = cls._normalize_for_new(raw_str)
+        self = super().__new__(cls, normalized, *args[1:])
+        return cast('WslPath', self)
 
-        # Create the parent with normalized path
-        new_args = (normalized, *args[1:])
-        super().__init__(*new_args[1:], **kwargs)
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize non-Path attributes; base path was created in __new__."""
+        self.logger = logging.getLogger(__name__)
+        self.ensure_attributes()
 
     def ensure_attributes(self) -> None:
         """Ensure all instance attributes are initialized."""
@@ -103,18 +105,24 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
             child = WslPath(str(child))
         return cast(WslPath, child)
 
-    def _normalize_path(self, raw_str: str) -> str:
-        """Normalize path based on platform and path type."""
+    @classmethod
+    def _normalize_for_new(cls, raw_str: str) -> str:
+        """Normalize path based on platform and path type for __new__."""
         if is_mnt(raw_str):
             if os_name == 'posix':
                 return raw_str
-            drive_letter = self._get_drive_letter_from_mnt_path(raw_str)
-            return f'{drive_letter.upper()}:{raw_str[7:]}'
+            drive_letter = cls._get_drive_letter_from_mnt_path(raw_str)
+            # Compute remainder after '/mnt/<drive>' robustly
+            parts = raw_str.split('/', 3)
+            remainder = '' if len(parts) < 4 else parts[3]
+            # Ensure absolute path on the drive
+            suffix = '/' + remainder if remainder else '/'
+            return f'{drive_letter.upper()}:{suffix}'
 
         if is_nt(raw_str):
             if os_name == 'nt':
                 return raw_str
-            drive_letter = self._get_drive_letter_from_nt_path(raw_str)
+            drive_letter = cls._get_drive_letter_from_nt_path(raw_str)
             return f'/mnt/{drive_letter}{raw_str[2:]}'
 
         error_msg = (
@@ -123,7 +131,8 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
         )
         raise NotImplementedError(error_msg)
 
-    def _get_drive_letter_from_nt_path(self, path_in: str) -> str:
+    @staticmethod
+    def _get_drive_letter_from_nt_path(path_in: str) -> str:
         """Extract drive letter from Windows NT path.
 
         Args:
@@ -139,7 +148,8 @@ class WslPath(_BASE_PATH_TYPE):  # type: ignore[valid-type, misc]
             return path_in[0].lower()
         raise ValueError('Invalid Windows path: cannot derive drive letter.')
 
-    def _get_drive_letter_from_mnt_path(self, path_in: str) -> str:
+    @staticmethod
+    def _get_drive_letter_from_mnt_path(path_in: str) -> str:
         """Extract drive letter from WSL mount path.
 
         Args:

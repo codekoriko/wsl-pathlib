@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -6,7 +7,7 @@ from wsl_pathlib.path import WslPath
 
 
 @pytest.mark.parametrize(('fullpath_in', 'getter', 'expected'), [
-    (r'D:\\.wor\\wsl-pathlib', 'win_path', r'C:\\foo\\test.txt'),
+    (r'C:\foo\test.txt', 'win_path', r'C:\foo\test.txt'),
     (r'C:\foo\test.txt', 'wsl_path', '/mnt/c/foo/test.txt'),
     (Path(r'C:\foo\test.txt'), 'wsl_path', '/mnt/c/foo/test.txt'),
     (Path(r'C:\foo', 'test.txt'), 'wsl_path', '/mnt/c/foo/test.txt'),
@@ -61,3 +62,11 @@ def test_unsupported_path() -> None:
     """Test that unsupported path formats raise NotImplementedError."""
     with pytest.raises(NotImplementedError):
         WslPath('~/wsl_user_folde')
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='Windows-specific roundtrip test')
+def test_exists_windows_roundtrip(tmp_path: Path) -> None:
+    p = tmp_path / 'a.txt'
+    p.write_text('x')
+    w = WslPath(str(p))  # C:\...\a.txt
+    assert WslPath(w.wsl_path).exists()
